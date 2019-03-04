@@ -95,7 +95,7 @@ file.write("device API id, Default Name, IPAddress, Display Name, MAC Address\n"
 
 if __name__ == '__main__':
     daysinMS = int(opts.days) * 86400000
-    lookbackTime = 0 - daysinMS
+    lookback_time = 0 - daysinMS
 
     # Grab the ExtraHop device firmware version as a sanity check.
     versionURL = "extrahop/version"
