@@ -32,6 +32,10 @@ def check_for_api_key(ip):
 
 
 def call_extrahop(url, code, data):
+    if opts.apikey == '':
+        print('No API key available in call_extrahop(). Exiting')
+        exit(2)
+
     headers = {'Accept': 'application/json',
                'Authorization': 'ExtraHop apikey={}'.format(opts.apikey)}
     fullurl = "https://" + opts.host + "/api/v1/" + url
@@ -72,6 +76,9 @@ if not opts.apikey:
     check_for_api_key(opts.host)
     print('No API Key specified for device with IP address {}. '.format(str(opts.host)))
     this_api_key = input('Please enter the API key for the specified appliance: ')
+    if this_api_key == '' :
+        print('No API key specified. Exiting')
+        exit(2)
     opts.apikey = this_api_key
 
     api_key_file=get_api_key_path()
