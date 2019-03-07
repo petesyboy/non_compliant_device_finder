@@ -19,10 +19,16 @@ def get_api_key_path() -> object:
 def save_api_key(ip, key):
     path = get_api_key_path()
     print('Saving key to {}'.format(path))
-    fh = open(path,'r+')
+    with open(path, 'r+') as fh:
+        cnt = 0
+        for line in fh:
+            print('Line is {}'.format(line))
+            (ip, key) = line.split()
+            print('Result is {}, {}'.format(ip, key))
+            cnt += 1
+            key_dict[ip] = key
 
-
-    fh.close()
+    print('Total of {} lines in file'.format(cnt))
     return
 
 
