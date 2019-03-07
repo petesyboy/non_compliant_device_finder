@@ -23,10 +23,14 @@ def save_api_key(ip, key):
         cnt = 0
         for line in fh:
             print('Line is {}'.format(line))
-            (ip, key) = line.split()
-            print('Result is {}, {}'.format(ip, key))
+            (this_ip, key) = line.split()
+            print('Result is {}, {}'.format(this_ip, key))
             cnt += 1
             key_dict[ip] = key
+            if (ip) in key_dict:
+                print('Key Exists in file, updating')
+                save_needed = True
+                key_dict
 
     print('Total of {} lines in file'.format(cnt))
     return
