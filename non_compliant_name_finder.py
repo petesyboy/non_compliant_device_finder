@@ -19,24 +19,23 @@ def get_api_key_path() -> object:
 def save_api_key(ip, key):
     path = get_api_key_path()
     print('Saving key to {}'.format(path))
-    with open(path, 'a+') as fh:
+    key_dict = {}
+    with open(path, 'r+') as fh:
         cnt = 0
         for line in fh:
             print('Line is {}'.format(line))
             (this_ip, key) = line.split()
             print('Result is {}, {}'.format(this_ip, key))
             cnt += 1
+            key_dict[this_ip] = key
+    print('Read {} lines in file'.format(cnt))
+    if ip in key_dict:
+        print('Key Exists in file, updating')
+        save_needed = True
+    else:
+        print('Key not in file, adding')
+        save_needed = True
 
-            if ip in key_dict:
-                print('Key Exists in file, updating')
-                save_needed = True
-            else:
-                print('Key not in file, adding')
-                save_needed = True
-
-
-
-    print('Total of {} lines in file'.format(cnt))
     return
 
 
