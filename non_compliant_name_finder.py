@@ -29,19 +29,39 @@ def save_api_key(ip, key):
             cnt += 1
             key_dict[this_ip] = key
     print('Read {} lines in file'.format(cnt))
+
     if ip in key_dict:
         print('Key Exists in file, updating')
         save_needed = True
+        key_dict[ip] = key
+
     else:
         print('Key not in file, adding')
         save_needed = True
+        key_dict[ip] = key
 
     return
 
 
 def check_for_api_key(ip):
+    path = get_api_key_path()
 
-    return
+    key_dict = {}
+    with open(path, 'r+') as fh:
+        cnt = 0
+        for line in fh:
+            print('Line is {}'.format(line))
+            (this_ip, key) = line.split()
+            print('Result is {}, {}'.format(this_ip, key))
+            cnt += 1
+            key_dict[this_ip] = key
+
+    if ip in key_dict:
+        return key
+
+    else:
+        return ('Key not in file, adding')
+
 
 
 def call_extrahop(url, code, data):
