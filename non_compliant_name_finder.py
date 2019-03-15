@@ -63,7 +63,6 @@ def check_for_api_key(ip):
         return ('Key not in file, adding')
 
 
-
 def call_extrahop(url, code, data):
     if opts.apikey == '':
         print('No API key available in call_extrahop(). Exiting')
