@@ -25,20 +25,12 @@ def save_api_key(ip, key):
         for line in fh:
             print('Line is {}'.format(line))
             (this_ip, key) = line.split()
-            print('Result is {}, {}'.format(this_ip, key))
             cnt += 1
             key_dict[this_ip] = key
     print('Read {} lines in file'.format(cnt))
 
-    if ip in key_dict:
-        print('Key Exists in file, updating')
-        save_needed = True
-        key_dict[ip] = key
-
-    else:
-        print('Key not in file, adding')
-        save_needed = True
-        key_dict[ip] = key
+    save_needed = True
+    key_dict[ip] = key
 
     return
 
@@ -60,7 +52,11 @@ def check_for_api_key(ip):
         return key
 
     else:
-        return ('Key not in file, adding')
+        return 'Key not in file, adding'
+        if opts.apikey:
+            save_api_key(ip, opts.apikey)
+        else:
+            print('No key found in file and no key specified on command line. Exiting ')
 
 
 def call_extrahop(url, code, data):
