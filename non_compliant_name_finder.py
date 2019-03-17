@@ -7,6 +7,7 @@ from typing import Dict, Union
 
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
@@ -43,8 +44,6 @@ def save_api_key(ip, key):
             (this_ip, key) = line.split()
             cnt += 1
             key_dict[this_ip] = key
-
-
 
     return
 
@@ -94,7 +93,7 @@ def call_extrahop(url, code, data):
 if len(sys.argv) < 3:
     print(
         'Usage: python %s -H Extrahop_IP -O OutputFile <minus extension, csv is added> -D Lookback in days -K apikey') % (
-    sys.argv[0])
+        sys.argv[0])
     sys.exit(1)
 
 # Set up options
@@ -115,16 +114,15 @@ if not opts.apikey:
     check_file_for_api_key(opts.host)
     print('No API Key specified for device with IP address {}. '.format(str(opts.host)))
     this_api_key = input('Please enter the API key for the specified appliance: ')
-    if this_api_key == '' :
+    if this_api_key == '':
         print('No API key specified. Exiting')
         exit(2)
     opts.apikey = this_api_key
 
-    api_key_file=get_api_key_path()
+    api_key_file = get_api_key_path()
     save_key = input('Do you wish to save this key to the default file ({})?'.format(api_key_file))
     if save_key.lower() == "y" or save_key.lower() == 'yes':
         save_api_key(opts.host, this_api_key)
-
 
 # Name of the csv file we will be writing to....
 csvName = opts.outputfile + ".csv"
