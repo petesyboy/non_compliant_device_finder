@@ -31,34 +31,31 @@ def read_api_key_file():
     return key_dict
 
 
-def save_api_key(ip, key):
+def add_api_key_to_file(ip, key):
+    path = get_api_key_path()
     print('Saving key to {}'.format(path))
     keys_dict = read_api_key_file()
     keys_dict[ip] = key
-    path = get_api_key_path()
-    key_dict = {}
-    with open(path, 'a+') as fh:
-        cnt = 0
+    with open(path, 'r') as fh:
         for line in fh:
             # print('Line is {}'.format(line))
             (this_ip, key) = line.split()
-            cnt += 1
-            key_dict[this_ip] = key
-
+            keys_dict[this_ip] = key
+    keys_dict[ip] = key
+    with open(path, 'w') as fh:
+        for this_ip, this_key in keys_dict.items():
+            fh.write(str(this_ip) + ' ' + str(this_key))
     return
 
 
 def check_file_for_api_key(ip):
     path = get_api_key_path()
-
     key_dict = {}
     with open(path, 'r+') as fh:
-        cnt = 0
         for line in fh:
-            # print('Line is {}'.format(line))
+            print('Line is {}'.format(line))
             (this_ip, key) = line.split()
             # print('Result is {}, {}'.format(this_ip, key))
-            cnt += 1
             key_dict[this_ip] = key
 
     if ip in key_dict:
@@ -122,7 +119,7 @@ if not opts.apikey:
     api_key_file = get_api_key_path()
     save_key = input('Do you wish to save this key to the default file ({})?'.format(api_key_file))
     if save_key.lower() == "y" or save_key.lower() == 'yes':
-        save_api_key(opts.host, this_api_key)
+        add_api_key_to_file(opts.host, this_api_key)
 
 # Name of the csv file we will be writing to....
 csvName = opts.outputfile + ".csv"
