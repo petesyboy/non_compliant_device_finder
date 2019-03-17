@@ -16,9 +16,8 @@ def get_api_key_path() -> object:
     return path
 
 
-def save_api_key(ip, key):
+def read_api_key_file():
     path = get_api_key_path()
-    print('Saving key to {}'.format(path))
     key_dict = {}
     with open(path, 'r+') as fh:
         cnt = 0
@@ -28,23 +27,38 @@ def save_api_key(ip, key):
             cnt += 1
             key_dict[this_ip] = key
     print('Read {} lines in file'.format(cnt))
+    return key_dict
 
-    save_needed = True
-    key_dict[ip] = key
+
+def save_api_key(ip, key):
+    print('Saving key to {}'.format(path))
+    keys_dict = read_api_key_file()
+    keys_dict[ip] = key
+    path = get_api_key_path()
+    key_dict = {}
+    with open(path, 'a+') as fh:
+        cnt = 0
+        for line in fh:
+            # print('Line is {}'.format(line))
+            (this_ip, key) = line.split()
+            cnt += 1
+            key_dict[this_ip] = key
+
+
 
     return
 
 
-def check_for_api_key(ip):
+def check_file_for_api_key(ip):
     path = get_api_key_path()
 
     key_dict = {}
     with open(path, 'r+') as fh:
         cnt = 0
         for line in fh:
-            print('Line is {}'.format(line))
+            # print('Line is {}'.format(line))
             (this_ip, key) = line.split()
-            print('Result is {}, {}'.format(this_ip, key))
+            # print('Result is {}, {}'.format(this_ip, key))
             cnt += 1
             key_dict[this_ip] = key
 
@@ -52,11 +66,7 @@ def check_for_api_key(ip):
         return key
 
     else:
-        return 'Key not in file, adding'
-        if opts.apikey:
-            save_api_key(ip, opts.apikey)
-        else:
-            print('No key found in file and no key specified on command line. Exiting ')
+        return 3
 
 
 def call_extrahop(url, code, data):
@@ -94,6 +104,7 @@ p.add_option('-K', '--key', dest='apikey')
 p.add_option('-O', '--file', dest='outputfile',
              default='non_compliant_server_names')
 p.add_option('-D', '--days', dest='days', default='7')
+p.add_option('-R', '--regex', dest='regex', default='^VMware')
 (opts, argv) = p.parse_args()
 
 if not opts.host:
@@ -101,7 +112,7 @@ if not opts.host:
     exit(1)
 
 if not opts.apikey:
-    check_for_api_key(opts.host)
+    check_file_for_api_key(opts.host)
     print('No API Key specified for device with IP address {}. '.format(str(opts.host)))
     this_api_key = input('Please enter the API key for the specified appliance: ')
     if this_api_key == '' :
@@ -158,7 +169,11 @@ if __name__ == '__main__':
 
     '''
     operand = {}  # Create the 'operand' JSON object
-    operand["value"] = "^VMware"
+    if opts.regex:
+        operand["value"] = opt.regex
+    else:
+        operand["value"] = "^VMware"
+
     operand["is_regex"] = "true"
     filter_details = {}  # Create the 'filter' JSON object
     filter_details["field"] = "name"
