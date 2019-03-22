@@ -3,6 +3,7 @@ import optparse
 import sys
 import time
 import os
+from pathlib import Path
 from typing import Dict, Union
 
 import requests
@@ -11,7 +12,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
-def get_api_key_path() -> object:
+def get_api_key_path():
     key_file = '.extrahop'
     path: Union[bytes, str] = os.path.join(os.path.expanduser('~'), key_file)
     return path
@@ -19,51 +20,50 @@ def get_api_key_path() -> object:
 
 def read_api_key_file():
     path = get_api_key_path()
+    create_key_file_if_needed()
     key_dict = {}
     with open(path, 'r+') as fh:
-        cnt = 0
         for line in fh:
-            print('Line is {}'.format(line))
             (this_ip, key) = line.split()
-            cnt += 1
             key_dict[this_ip] = key
-    print('Read {} lines in file'.format(cnt))
     return key_dict
 
 
 def add_api_key_to_file(ip, key):
     path = get_api_key_path()
+    create_key_file_if_needed()
     print('Saving key to {}'.format(path))
-    keys_dict = read_api_key_file()
-    keys_dict[ip] = key
-    with open(path, 'r') as fh:
-        for line in fh:
-            # print('Line is {}'.format(line))
-            (this_ip, key) = line.split()
-            keys_dict[this_ip] = key
-    keys_dict[ip] = key
+    key_dict = read_api_key_file()
+    key_dict[ip] = key
     with open(path, 'w') as fh:
-        for this_ip, this_key in keys_dict.items():
-            fh.write(str(this_ip) + ' ' + str(this_key))
+        for this_ip, this_key in key_dict.items():
+            fh.write(str(this_ip) + ' ' + str(this_key) + '\n')
     return
 
 
 def check_file_for_api_key(ip):
     path = get_api_key_path()
+    create_key_file_if_needed()
     key_dict = {}
     with open(path, 'r+') as fh:
         for line in fh:
-            print('Line is {}'.format(line))
             (this_ip, key) = line.split()
-            # print('Result is {}, {}'.format(this_ip, key))
             key_dict[this_ip] = key
 
     if ip in key_dict:
         return key
-
     else:
         return 3
 
+
+def create_key_file_if_needed():
+    path = get_api_key_path()
+    exists = os.path.isfile(path)
+    if not exists:
+        fh = open(path, 'w+')
+        fh.close()
+    # chmod(path, 0x755)
+    return
 
 def call_extrahop(url, code, data):
     if opts.apikey == '':
@@ -108,12 +108,12 @@ if not opts.host:
     exit(1)
 
 if not opts.apikey:
-    check_file_for_api_key(opts.host)
-    print('No API Key specified for device with IP address {}. '.format(str(opts.host)))
-    this_api_key = input('Please enter the API key for the specified appliance: ')
+    this_api_key = check_file_for_api_key(opts.host)
     if this_api_key == '':
         print('No API key specified. Exiting')
         exit(2)
+    print('No API Key specified for device with IP address {}. '.format(str(opts.host)))
+    this_api_key = input('Please enter the API key for the specified appliance: ')
     opts.apikey = this_api_key
 
     api_key_file = get_api_key_path()
