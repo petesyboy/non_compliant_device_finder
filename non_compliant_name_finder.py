@@ -3,6 +3,7 @@ import optparse
 import os
 import sys
 import time
+from pprint import pprint
 from typing import Dict, Union
 
 import requests
@@ -64,6 +65,7 @@ def create_key_file_if_needed():
     # chmod(path, 0x755)
     return
 
+
 def call_extrahop(url, code, data):
     if not opts.apikey:
         print('No API key available in call_extrahop(). Exiting')
@@ -72,11 +74,15 @@ def call_extrahop(url, code, data):
     headers = {'Accept': 'application/json',
                'Authorization': 'ExtraHop apikey={}'.format(opts.apikey)}
     fullurl = "https://" + opts.host + "/api/v1/" + url
-    # print('Full URL is ' + fullurl)
+    if opts.debug == "True":
+        print('Sending a {} request to {} with the headers {}'.format(code, fullurl, headers))
+
     if code == 'get':
         response = requests.get(fullurl, headers=headers,
                                 timeout=10, verify=False)
     elif code == 'post':
+        if opts.debug == "True":
+            pprint(data)
         response = requests.post(fullurl, data=json.dumps(
             data), headers=headers, timeout=10, verify=False)
 
@@ -100,6 +106,7 @@ p.add_option('-O', '--file', dest='outputfile',
              default='non_compliant_server_names')
 p.add_option('-D', '--days', dest='days', default='7')
 p.add_option('-R', '--regex', dest='regex', default='^VMware')
+p.add_option('-X', '--debug', dest='debug', default=False)
 (opts, argv) = p.parse_args()
 
 if not opts.host:
