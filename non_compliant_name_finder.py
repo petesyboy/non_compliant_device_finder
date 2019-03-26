@@ -1,9 +1,8 @@
 import json
 import optparse
+import os
 import sys
 import time
-import os
-from pathlib import Path
 from typing import Dict, Union
 
 import requests
@@ -66,7 +65,7 @@ def create_key_file_if_needed():
     return
 
 def call_extrahop(url, code, data):
-    if opts.apikey == '':
+    if not opts.apikey:
         print('No API key available in call_extrahop(). Exiting')
         exit(2)
 
@@ -109,17 +108,19 @@ if not opts.host:
 
 if not opts.apikey:
     this_api_key = check_file_for_api_key(opts.host)
-    if this_api_key == '':
-        print('No API key specified. Exiting')
-        exit(2)
-    print('No API Key specified for device with IP address {}. '.format(str(opts.host)))
-    this_api_key = input('Please enter the API key for the specified appliance: ')
-    opts.apikey = this_api_key
+    if this_api_key:
+        print('Found API key in key file')
+        opts.apikey = this_api_key
+    else:
+        print('No key found in file and no API Key specified for device with IP address {}. '.format(str(opts.host)))
+        this_api_key = input('Please enter the API key for the specified appliance: ')
+        opts.apikey = this_api_key
 
-    api_key_file = get_api_key_path()
-    save_key = input('Do you wish to save this key to the default file ({})?'.format(api_key_file))
-    if save_key.lower() == "y" or save_key.lower() == 'yes':
-        add_api_key_to_file(opts.host, this_api_key)
+        api_key_file = get_api_key_path()
+        save_key = input('Do you wish to save this key to the default file ({})?'.format(api_key_file))
+        if save_key.lower() == "y" or save_key.lower() == 'yes':
+            add_api_key_to_file(opts.host, this_api_key)
+
 
 # Name of the csv file we will be writing to....
 csvName = opts.outputfile + ".csv"
@@ -165,7 +166,7 @@ if __name__ == '__main__':
     '''
     operand = {}  # Create the 'operand' JSON object
     if opts.regex:
-        operand["value"] = opt.regex
+        operand["value"] = opts.regex
     else:
         operand["value"] = "^VMware"
 
