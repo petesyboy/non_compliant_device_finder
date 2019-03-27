@@ -65,7 +65,7 @@ def create_key_file_if_needed():
     return
 
 
-def get_version_and_platform(ip: str) -> Tuple[str, str]:
+def get_version_and_platform(ip):
     # Grab the ExtraHop device firmware version as a sanity check.
     version_url = "extrahop/version"
     extrahop_fw_version = call_extrahop(version_url, "get", "")
