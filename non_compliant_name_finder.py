@@ -71,8 +71,8 @@ def get_version_and_platform(ip):
     extrahop_appl_details = call_extrahop(version_url, "get", "")
     if extrahop_appl_details['platform'] == 'extrahop':
         platform = extrahop_appl_details['platform'] + ' (EDA)'
-    print('ExtraHop Appliance is {} and the version is {}'.
-          format(platform, extrahop_appl_details['version']))
+    if options.verbose:
+        print('ExtraHop Appliance is {} and the version is {}'.format(platform, extrahop_appl_details['version']))
     return platform, extrahop_appl_details['version']
 
 
@@ -155,9 +155,9 @@ file = open(csv_file_name, "w")
 
 now = time.strftime("%c")
 # date and time representation
-nowForFile = time.strftime("%c")
+now_for_file = time.strftime("%c")
 file.write('# Generated from ExtraHop EDA at ' + str(options.host) +
-           '. Non-compliant server names in the last ' + str(options.days) + ' days as at ' + nowForFile + ".\n")
+           '. Non-compliant server names in the last ' + str(options.days) + ' days as at ' + now_for_file + ".\n")
 # Write first line / headers of CSV file.
 file.write("device API id, Default Name, IPAddress, Display Name, MAC Address\n")
 
@@ -196,14 +196,16 @@ if __name__ == '__main__':
     filter_details = {}  # Create the 'filter' JSON object
     filter_details["field"] = "name"
     filter_details["operand"] = operand
-    filter_details['operator'] = "!="
+    filter_details["operator"] = "!="
     device_name_check_data["active_from"] = "-{}d".format((options.days))
     device_name_check_data["active_until"] = 0
     device_name_check_data["filter"] = filter_details
 
     device_name_check_data["limit"] = 100
     device_name_check_data["offset"] = 0
-    # print(json.dumps(device_name_check_data, indent=2))
+    if options.verbose:
+        print('Constructed JSON object:')
+        print(json.dumps(device_name_check_data, indent=4))
 
     non_compliant_device_name_url = "devices/search"
     non_compliant_device_list = call_extrahop(
