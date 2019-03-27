@@ -65,14 +65,22 @@ def create_key_file_if_needed():
     return
 
 
-def get_version_and_platform(ip):
+def get_version_and_platform(ip: str) -> Tuple[str, str]:
     # Grab the ExtraHop device firmware version as a sanity check.
     version_url = "extrahop/version"
     extrahop_fw_version = call_extrahop(version_url, "get", "")
     platform_url = "extrahop/platform"
     extrahop_platform = call_extrahop(platform_url, "get", "")
-    print('ExtraHop Appliance is {} and the version is {}'.
-          format(extrahop_platform['platform'], extrahop_fw_version['version']))
+    platform = extrahop_platform['platform']
+    firmware = extrahop_fw_version['version']
+    if platform == 'extrahop':
+        this_platform = 'EDA'
+    else:
+        this_platform = platform
+    if options.verbose:
+        print('ExtraHop Appliance is {} and the version is {}'.
+              format(platform, firmware))
+    return this_platform, firmware
 
 
 def call_extrahop(url, code, data):
@@ -153,11 +161,13 @@ file = open(csvName, "w")
 
 now = time.strftime("%c")
 # date and time representation
-nowForFile = time.strftime("%c")
+now_for_file = time.strftime("%c")
 file.write('# Generated from ExtraHop EDA at ' + str(options.host) +
-           '. Non-compliant server names in the last ' + str(options.days) + ' days as at ' + nowForFile + ".\n")
+           '. Non-compliant server names in the last ' + str(options.days) + ' days as at ' + now_for_file + ".\n")
 # Write first line / headers of CSV file.
 file.write("device API id, Default Name, IPAddress, Display Name, MAC Address\n")
+
+platform, version = get_version_and_platform(options.host)
 
 if __name__ == '__main__':
     daysinMS = int(options.days) * 86400000
