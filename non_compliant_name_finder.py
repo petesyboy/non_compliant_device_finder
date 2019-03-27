@@ -1,7 +1,6 @@
+import argparse
 import json
-import optparse
 import os
-import sys
 import time
 from pprint import pprint
 from typing import Dict, Union
@@ -51,7 +50,7 @@ def check_file_for_api_key(ip):
             key_dict[this_ip] = key
 
     if ip in key_dict:
-        return key
+        return key_dict[ip]
     else:
         return 3
 
@@ -66,22 +65,32 @@ def create_key_file_if_needed():
     return
 
 
+def get_version_and_platform(ip):
+    # Grab the ExtraHop device firmware version as a sanity check.
+    version_url = "extrahop/version"
+    extrahop_fw_version = call_extrahop(version_url, "get", "")
+    platform_url = "extrahop/platform"
+    extrahop_platform = call_extrahop(platform_url, "get", "")
+    print('ExtraHop Appliance is {} and the version is {}'.
+          format(extrahop_platform['platform'], extrahop_fw_version['version']))
+
+
 def call_extrahop(url, code, data):
-    if not opts.apikey:
+    if not options.apikey:
         print('No API key available in call_extrahop(). Exiting')
         exit(2)
 
     headers = {'Accept': 'application/json',
-               'Authorization': 'ExtraHop apikey={}'.format(opts.apikey)}
-    fullurl = "https://" + opts.host + "/api/v1/" + url
-    if opts.debug == "True":
+               'Authorization': 'ExtraHop apikey={}'.format(options.apikey)}
+    fullurl = "https://" + options.host + "/api/v1/" + url
+    if options.verbose:
         print('Sending a {} request to {} with the headers {}'.format(code, fullurl, headers))
 
     if code == 'get':
         response = requests.get(fullurl, headers=headers,
                                 timeout=10, verify=False)
     elif code == 'post':
-        if opts.debug == "True":
+        if options.verbose:
             pprint(data)
         response = requests.post(fullurl, data=json.dumps(
             data), headers=headers, timeout=10, verify=False)
@@ -92,63 +101,67 @@ def call_extrahop(url, code, data):
     return response.json()
 
 
-if len(sys.argv) < 3:
-    print(
-        'Usage: python %s -H Extrahop_IP -O OutputFile <minus extension, csv is added> -D Lookback in days -K apikey') % (
-        sys.argv[0])
-    sys.exit(1)
-
 # Set up options
-p = optparse.OptionParser()
-p.add_option('-H', '--host', dest='host', default='extrahop')
-p.add_option('-K', '--key', dest='apikey')
-p.add_option('-O', '--file', dest='outputfile',
-             default='non_compliant_server_names')
-p.add_option('-D', '--days', dest='days', default='7')
-p.add_option('-R', '--regex', dest='regex', default='^VMware')
-p.add_option('-X', '--debug', dest='debug', default=False)
-(opts, argv) = p.parse_args()
+parser = argparse.ArgumentParser(description='Usage: %prog [options]')
+parser.add_argument('-H', '--host',
+                    required=True,
+                    default='extrahop',
+                    help='IP or hostname of ExtraHop appliance')
+parser.add_argument('-a', '--apikey',
+                    required=False,
+                    help='API token obtained from the ExtraHop system')
+parser.add_argument('-o', '--outputfile',
+                    required=False,
+                    default='non_compliant_server_names',
+                    help='Name of the file to save the results to')
+parser.add_argument('-d', '--days',
+                    required=False,
+                    default='7',
+                    type=int,
+                    help='Number of days of lookback history to search')
+parser.add_argument('-r', '--regex',
+                    required=False,
+                    default='^VMware',
+                    help='The RegEx pattern to use in the device name search')
+group = parser.add_mutually_exclusive_group()
+group.add_argument('-v', '--verbose', action='store_true')
+group.add_argument('-q', '--quiet', action='store_true')
 
-if not opts.host:
-    print('An IP address for an EDA or ECA must be specified')
-    exit(1)
+options = parser.parse_args()
+if not options.host:
+    parser.error('Incorrect number of arguments. Specify an ExtraHop appliance IP or hostname as a minimum, '
+                 'or specify "-h" for all options')
 
-if not opts.apikey:
-    this_api_key = check_file_for_api_key(opts.host)
-    if this_api_key:
+if not options.apikey:
+    this_api_key = check_file_for_api_key(options.host)
+    if this_api_key != 3:
         print('Found API key in key file')
-        opts.apikey = this_api_key
+        options.apikey = this_api_key
     else:
-        print('No key found in file and no API Key specified for device with IP address {}. '.format(str(opts.host)))
+        print('No key found in file and no API Key specified for device with IP address {}. '.format(str(options.host)))
         this_api_key = input('Please enter the API key for the specified appliance: ')
-        opts.apikey = this_api_key
+        options.apikey = this_api_key
 
         api_key_file = get_api_key_path()
         save_key = input('Do you wish to save this key to the default file ({})?'.format(api_key_file))
         if save_key.lower() == "y" or save_key.lower() == 'yes':
-            add_api_key_to_file(opts.host, this_api_key)
-
+            add_api_key_to_file(options.host, this_api_key)
 
 # Name of the csv file we will be writing to....
-csvName = opts.outputfile + ".csv"
+csvName = options.outputfile + ".csv"
 file = open(csvName, "w")
 
 now = time.strftime("%c")
 # date and time representation
 nowForFile = time.strftime("%c")
-file.write('# Generated from ExtraHop EDA at ' + str(opts.host) +
-           '. Non-compliant server names in the last ' + str(opts.days) + ' days as at ' + nowForFile + ".\n")
+file.write('# Generated from ExtraHop EDA at ' + str(options.host) +
+           '. Non-compliant server names in the last ' + str(options.days) + ' days as at ' + nowForFile + ".\n")
 # Write first line / headers of CSV file.
 file.write("device API id, Default Name, IPAddress, Display Name, MAC Address\n")
 
 if __name__ == '__main__':
-    daysinMS = int(opts.days) * 86400000
+    daysinMS = int(options.days) * 86400000
     lookback_time = 0 - daysinMS
-
-    # Grab the ExtraHop device firmware version as a sanity check.
-    versionURL = "extrahop/version"
-    extrahop_fw_version = call_extrahop(versionURL, "get", "")
-    print('ExtraHop Appliance Version is ' + extrahop_fw_version['version'])
 
     device_name_check_data: Dict[str, Union[str, int,
                                             Dict[str, Union[str, Dict[str, str]]]]] = {}
@@ -172,8 +185,8 @@ if __name__ == '__main__':
 
     '''
     operand = {}  # Create the 'operand' JSON object
-    if opts.regex:
-        operand["value"] = opts.regex
+    if options.regex:
+        operand["value"] = options.regex
     else:
         operand["value"] = "^VMware"
 
@@ -182,7 +195,7 @@ if __name__ == '__main__':
     filter_details["field"] = "name"
     filter_details["operand"] = operand
     filter_details['operator'] = "!="
-    device_name_check_data["active_from"] = "-{}d".format((opts.days))
+    device_name_check_data["active_from"] = "-{}d".format((options.days))
     device_name_check_data["active_until"] = 0
     device_name_check_data["filter"] = filter_details
 
