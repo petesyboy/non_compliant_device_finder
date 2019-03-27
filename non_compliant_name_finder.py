@@ -67,13 +67,12 @@ def create_key_file_if_needed():
 
 def get_version_and_platform(ip):
     # Grab the ExtraHop device firmware version as a sanity check.
-    version_url = "extrahop/"
-    extrahop_appl_details = call_extrahop(version_url, "get", "")
-    if extrahop_appl_details['platform'] == 'extrahop':
-        platform = extrahop_appl_details['platform'] + ' (EDA)'
-    if options.verbose:
-        print('ExtraHop Appliance is {} and the version is {}'.format(platform, extrahop_appl_details['version']))
-    return platform, extrahop_appl_details['version']
+    version_url = "extrahop/version"
+    extrahop_fw_version = call_extrahop(version_url, "get", "")
+    platform_url = "extrahop/platform"
+    extrahop_platform = call_extrahop(platform_url, "get", "")
+    print('ExtraHop Appliance is {} and the version is {}'.
+          format(extrahop_platform['platform'], extrahop_fw_version['version']))
 
 
 def call_extrahop(url, code, data):
@@ -103,7 +102,7 @@ def call_extrahop(url, code, data):
 
 
 # Set up options
-parser = argparse.ArgumentParser(description='Find non-compliant server names using the ExtraHop API')
+parser = argparse.ArgumentParser(description='Usage: %prog [options]')
 parser.add_argument('-H', '--host',
                     required=True,
                     default='extrahop',
@@ -127,8 +126,8 @@ parser.add_argument('-r', '--regex',
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-v', '--verbose', action='store_true')
 group.add_argument('-q', '--quiet', action='store_true')
-options = parser.parse_args()
 
+options = parser.parse_args()
 if not options.host:
     parser.error('Incorrect number of arguments. Specify an ExtraHop appliance IP or hostname as a minimum, '
                  'or specify "-h" for all options')
@@ -148,16 +147,15 @@ if not options.apikey:
         if save_key.lower() == "y" or save_key.lower() == 'yes':
             add_api_key_to_file(options.host, this_api_key)
 
-(platform, firmware_version) = get_version_and_platform(options.host)
 # Name of the csv file we will be writing to....
-csv_file_name = options.outputfile + ".csv"
-file = open(csv_file_name, "w")
+csvName = options.outputfile + ".csv"
+file = open(csvName, "w")
 
 now = time.strftime("%c")
 # date and time representation
-now_for_file = time.strftime("%c")
+nowForFile = time.strftime("%c")
 file.write('# Generated from ExtraHop EDA at ' + str(options.host) +
-           '. Non-compliant server names in the last ' + str(options.days) + ' days as at ' + now_for_file + ".\n")
+           '. Non-compliant server names in the last ' + str(options.days) + ' days as at ' + nowForFile + ".\n")
 # Write first line / headers of CSV file.
 file.write("device API id, Default Name, IPAddress, Display Name, MAC Address\n")
 
@@ -196,23 +194,20 @@ if __name__ == '__main__':
     filter_details = {}  # Create the 'filter' JSON object
     filter_details["field"] = "name"
     filter_details["operand"] = operand
-    filter_details["operator"] = "!="
+    filter_details['operator'] = "!="
     device_name_check_data["active_from"] = "-{}d".format((options.days))
     device_name_check_data["active_until"] = 0
     device_name_check_data["filter"] = filter_details
 
     device_name_check_data["limit"] = 100
     device_name_check_data["offset"] = 0
-    if options.verbose:
-        print('Constructed JSON object:')
-        print(json.dumps(device_name_check_data, indent=4))
+    # print(json.dumps(device_name_check_data, indent=2))
 
     non_compliant_device_name_url = "devices/search"
     non_compliant_device_list = call_extrahop(
         non_compliant_device_name_url, "post", device_name_check_data)
 
     device: object
-    cnt = 0
     for device in non_compliant_device_list:
         file_line = str(device['id']) + ',' + device['default_name']
         if (device['ipaddr4']):
@@ -229,7 +224,4 @@ if __name__ == '__main__':
             file_line += ','
         file_line += '\n'
         file.write(file_line)
-        cnt += 1
-    if options.verbose:
-        print('Wrote a total of {} lines to output file \'{}\''.format(cnt, csv_file_name))
     file.close()
