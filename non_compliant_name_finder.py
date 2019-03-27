@@ -67,12 +67,13 @@ def create_key_file_if_needed():
 
 def get_version_and_platform(ip):
     # Grab the ExtraHop device firmware version as a sanity check.
-    version_url = "extrahop/version"
-    extrahop_fw_version = call_extrahop(version_url, "get", "")
-    platform_url = "extrahop/platform"
-    extrahop_platform = call_extrahop(platform_url, "get", "")
+    version_url = "extrahop/"
+    extrahop_appl_details = call_extrahop(version_url, "get", "")
+    if extrahop_appl_details['platform'] == 'extrahop':
+        platform = extrahop_appl_details['platform'] + ' (EDA)'
     print('ExtraHop Appliance is {} and the version is {}'.
-          format(extrahop_platform['platform'], extrahop_fw_version['version']))
+          format(platform, extrahop_appl_details['version']))
+    return platform, extrahop_appl_details['version']
 
 
 def call_extrahop(url, code, data):
@@ -102,7 +103,7 @@ def call_extrahop(url, code, data):
 
 
 # Set up options
-parser = argparse.ArgumentParser(description='Usage: %prog [options]')
+parser = argparse.ArgumentParser(description='Find non-compliant server names using the ExtraHop API')
 parser.add_argument('-H', '--host',
                     required=True,
                     default='extrahop',
@@ -126,8 +127,8 @@ parser.add_argument('-r', '--regex',
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-v', '--verbose', action='store_true')
 group.add_argument('-q', '--quiet', action='store_true')
-
 options = parser.parse_args()
+
 if not options.host:
     parser.error('Incorrect number of arguments. Specify an ExtraHop appliance IP or hostname as a minimum, '
                  'or specify "-h" for all options')
@@ -147,9 +148,10 @@ if not options.apikey:
         if save_key.lower() == "y" or save_key.lower() == 'yes':
             add_api_key_to_file(options.host, this_api_key)
 
+(platform, firmware_version) = get_version_and_platform(options.host)
 # Name of the csv file we will be writing to....
-csvName = options.outputfile + ".csv"
-file = open(csvName, "w")
+csv_file_name = options.outputfile + ".csv"
+file = open(csv_file_name, "w")
 
 now = time.strftime("%c")
 # date and time representation
@@ -208,6 +210,7 @@ if __name__ == '__main__':
         non_compliant_device_name_url, "post", device_name_check_data)
 
     device: object
+    cnt = 0
     for device in non_compliant_device_list:
         file_line = str(device['id']) + ',' + device['default_name']
         if (device['ipaddr4']):
@@ -224,4 +227,7 @@ if __name__ == '__main__':
             file_line += ','
         file_line += '\n'
         file.write(file_line)
+        cnt += 1
+    if options.verbose:
+        print('Wrote a total of {} lines to output file \'{}\''.format(cnt, csv_file_name))
     file.close()
