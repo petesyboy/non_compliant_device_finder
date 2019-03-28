@@ -129,6 +129,9 @@ parser.add_argument('-r', '--regex',
                     required=False,
                     default='^VMware',
                     help='The RegEx pattern to use in the device name search')
+parser.add_argument('-i', '--ipaddr',
+                    required=False,
+                    help='Only include devices with an IP address(L3)')  ##TODO - Implement the L3 only search
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-v', '--verbose', action='store_true')
 group.add_argument('-q', '--quiet', action='store_true')
