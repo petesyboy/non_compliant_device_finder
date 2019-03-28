@@ -66,20 +66,18 @@ def create_key_file_if_needed():
 
 
 def get_version_and_platform(ip):
-    # Grab the ExtraHop device firmware version as a sanity check.
-    version_url = "extrahop/version"
-    extrahop_fw_version = call_extrahop(version_url, "get", "")
-    platform_url = "extrahop/platform"
+    # Grab the ExtraHop device platform and firmware version.
+    platform_url = "extrahop/"
     extrahop_platform = call_extrahop(platform_url, "get", "")
     platform = extrahop_platform['platform']
-    firmware = extrahop_fw_version['version']
+    firmware = extrahop_platform['version']
     if platform == 'extrahop':
         this_platform = 'EDA'
     else:
         this_platform = platform
     if options.verbose:
         print('ExtraHop Appliance is {} and the version is {}'.
-              format(platform, firmware))
+              format(this_platform, firmware))
     return this_platform, firmware
 
 
@@ -204,7 +202,7 @@ if __name__ == '__main__':
     filter_details = {}  # Create the 'filter' JSON object
     filter_details["field"] = "name"
     filter_details["operand"] = operand
-    filter_details['operator'] = "!="
+    filter_details['operator'] = "="
     device_name_check_data["active_from"] = "-{}d".format((options.days))
     device_name_check_data["active_until"] = 0
     device_name_check_data["filter"] = filter_details
@@ -218,6 +216,7 @@ if __name__ == '__main__':
         non_compliant_device_name_url, "post", device_name_check_data)
 
     device: object
+    cnt = 0
     for device in non_compliant_device_list:
         file_line = str(device['id']) + ',' + device['default_name']
         if (device['ipaddr4']):
@@ -234,4 +233,6 @@ if __name__ == '__main__':
             file_line += ','
         file_line += '\n'
         file.write(file_line)
+        cnt += 1
+    print('Wrote a total of {} device detail lines to file'.format(cnt))
     file.close()
