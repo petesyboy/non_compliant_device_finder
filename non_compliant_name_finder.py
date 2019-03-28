@@ -202,7 +202,7 @@ if __name__ == '__main__':
     filter_details = {}  # Create the 'filter' JSON object
     filter_details["field"] = "name"
     filter_details["operand"] = operand
-    filter_details['operator'] = "="
+    filter_details['operator'] = "!="
     device_name_check_data["active_from"] = "-{}d".format((options.days))
     device_name_check_data["active_until"] = 0
     device_name_check_data["filter"] = filter_details
