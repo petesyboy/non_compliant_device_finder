@@ -14,6 +14,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 def get_api_key_path():
     key_file = '.extrahop'
     path: Union[bytes, str] = os.path.join(os.path.expanduser('~'), key_file)
+    print(f'Working with key file at {path}')
     return path
 
 
@@ -31,7 +32,7 @@ def read_api_key_file():
 def add_api_key_to_file(ip, key):
     path = get_api_key_path()
     create_key_file_if_needed()
-    print('Saving key to {}'.format(path))
+    print(f'Saving key to {path}')
     key_dict = read_api_key_file()
     key_dict[ip] = key
     with open(path, 'w') as fh:
@@ -76,8 +77,7 @@ def get_version_and_platform(ip):
     else:
         this_platform = platform
     if options.verbose:
-        print('ExtraHop Appliance is {} and the version is {}'.
-              format(this_platform, firmware))
+        print(f'ExtraHop Appliance is {this_platform} and the version is {firmware}')
     return this_platform, firmware
 
 
@@ -90,7 +90,7 @@ def call_extrahop(url, code, data):
                'Authorization': 'ExtraHop apikey={}'.format(options.apikey)}
     fullurl = "https://" + options.host + "/api/v1/" + url
     if options.verbose:
-        print('Sending a {} request to {} with the headers {}'.format(code, fullurl, headers))
+        print(f'Sending a {code} request to {fullurl} with the headers {headers}')
 
     if code == 'get':
         response = requests.get(fullurl, headers=headers,
@@ -147,12 +147,12 @@ if not options.apikey:
         print('Found API key in key file')
         options.apikey = this_api_key
     else:
-        print('No key found in file and no API Key specified for device with IP address {}. '.format(str(options.host)))
+        print(f'No key found in file and no API Key specified for device with IP address {str(options.host)}. ')
         this_api_key = input('Please enter the API key for the specified appliance: ')
         options.apikey = this_api_key
 
         api_key_file = get_api_key_path()
-        save_key = input('Do you wish to save this key to the default file ({})?'.format(api_key_file))
+        save_key = input(f'Do you wish to save this key to the default file ({api_key_file})?')
         if save_key.lower() == "y" or save_key.lower() == 'yes':
             add_api_key_to_file(options.host, this_api_key)
 
@@ -163,8 +163,9 @@ file = open(csvName, "w")
 now = time.strftime("%c")
 # date and time representation
 now_for_file = time.strftime("%c")
-file.write('# Generated from ExtraHop EDA at ' + str(options.host) +
-           '. Non-compliant server names in the last ' + str(options.days) + ' days as at ' + now_for_file + ".\n")
+header_info_line = '# Generated from ExtraHop EDA at {}. Non-compliant server names in the last {} days as at {}.\n'.format(
+    str(options.host), str(options.days), now_for_file)
+file.write(header_info_line)
 # Write first line / headers of CSV file.
 file.write("device API id, Default Name, IPAddress, Display Name, MAC Address\n")
 
@@ -237,5 +238,5 @@ if __name__ == '__main__':
         file_line += '\n'
         file.write(file_line)
         cnt += 1
-    print('Wrote a total of {} device detail lines to file'.format(cnt))
+    print(f'Wrote a total of {cnt} device detail lines to file')
     file.close()
