@@ -102,7 +102,15 @@ def call_extrahop(url, code, data):
             data), headers=headers, timeout=10, verify=False)
 
     if response.status_code != 200:
-        response.raise_for_status()
+        # response.raise_for_status()
+        if response.status_code == 401:
+            print(
+                f'The API returned an unauthorised /missing API key error {response.status_code}. Please check your API key')
+
+        if response.status_code == 402:
+            print(
+                f'The EULA has not been accepted for this appliance (status {response.status_code}. Please browse to https://{options.host}/admin to accept the EULA')
+
     # Return the response as a JSON object.
     return response.json()
 
@@ -166,7 +174,7 @@ now_for_file = time.strftime("%c")
 header_info_line = '# Generated from ExtraHop EDA at {}. Non-compliant server names in the last {} days as at {}.\n'.format(
     str(options.host), str(options.days), now_for_file)
 file.write(header_info_line)
-# Write first line / headers of CSV file.
+# Write headers of CSV file.
 file.write("device API id, Default Name, IPAddress, Display Name, MAC Address\n")
 
 platform, version = get_version_and_platform(options.host)
