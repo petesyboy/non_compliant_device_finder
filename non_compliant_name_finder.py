@@ -1,3 +1,4 @@
+__author__ = 'Pete Connolly (pconnolly@extrahop.com)'
 import argparse
 import json
 import os
@@ -111,6 +112,8 @@ def call_extrahop(url, code, data):
             print(
                 f'The EULA has not been accepted for this appliance (status {response.status_code}. Please browse to https://{options.host}/admin to accept the EULA')
 
+        if response.status_code == 404:
+            print(f'The requested resource could not be found. Are you specifying the right object ID?')
     # Return the response as a JSON object.
     return response.json()
 

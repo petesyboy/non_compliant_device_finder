@@ -5,6 +5,9 @@
     <orderEntry type="jdk" jdkName="Python 3.7 (deviceRenamer)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
+  <component name="PackageRequirementsSettings">
+    <option name="requirementsPath" value="E:\Python Projects\non_compliant_device_names\requirements.txt" />
+  </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Twisted Trial" />
     <option name="PROJECT_TEST_RUNNER" value="Twisted Trial" />
