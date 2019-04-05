@@ -15,7 +15,9 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 def get_api_key_path():
     key_file = '.extrahop'
     path: Union[bytes, str] = os.path.join(os.path.expanduser('~'), key_file)
-    print(f'Working with key file at {path}')
+    if options.verbose:
+        print(f'Working with key file at {path}')
+
     return path
 
 
@@ -106,15 +108,18 @@ def call_extrahop(url, code, data):
         # response.raise_for_status()
         if response.status_code == 401:
             print(
-                f'The API returned an unauthorised /missing API key error {response.status_code}. Please check your API key')
+                f'The API returned an unauthorised /missing API key error {response.status_code}. ' \
+                    f'Please check your API key')
 
-        if response.status_code == 402:
+        elif response.status_code == 402:
             print(
-                f'The EULA has not been accepted for this appliance (status {response.status_code}. Please browse to https://{options.host}/admin to accept the EULA')
+                f'The EULA has not been accepted for this appliance (status {response.status_code}. ' \
+                    f'Please browse to https://{options.host}/admin to accept the EULA')
 
-        if response.status_code == 404:
+        elif response.status_code == 404:
             print(
-                f'The requested resource could not be found. Are you specifying the right object ID? (add/device/applaiance etc).')
+                f'The requested resource could not be found. Are you specifying the right object ID? ' \
+                    f'(device/appliance etc).')
     # Return the response as a JSON object.
     return response.json()
 
@@ -139,7 +144,7 @@ parser.add_argument('-d', '--days',
                     help='Number of days of lookback history to search')
 parser.add_argument('-r', '--regex',
                     required=False,
-                    default='^VMware',
+                    default='^ASUS',
                     help='The RegEx pattern to use in the device name search')
 parser.add_argument('-i', '--ipaddr',
                     required=False,
