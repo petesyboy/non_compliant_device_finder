@@ -73,12 +73,12 @@ def get_version_and_platform(ip):
     # Grab the ExtraHop device platform and firmware version.
     platform_url = "extrahop/"
     extrahop_platform = call_extrahop(platform_url, "get", "")
-    platform = extrahop_platform['platform']
+    eh_platform = extrahop_platform['platform']
     firmware = extrahop_platform['version']
-    if platform == 'extrahop':
+    if eh_platform == 'extrahop':
         this_platform = 'EDA'
     else:
-        this_platform = platform
+        this_platform = eh_platform
     if options.verbose:
         print(f'ExtraHop Appliance is {this_platform} and the version is {firmware}')
     return this_platform, firmware
@@ -161,7 +161,8 @@ if not options.host:
 if not options.apikey:
     this_api_key = check_file_for_api_key(options.host)
     if this_api_key != 3:
-        print('Found API key in key file')
+        if options.verbose:
+            print('Found API key in key file')
         options.apikey = this_api_key
     else:
         print(f'No key found in file and no API Key specified for device with IP address {str(options.host)}. ')
