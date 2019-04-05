@@ -80,7 +80,7 @@ def get_version_and_platform(ip):
     else:
         this_platform = eh_platform
     if options.verbose:
-        print(f'ExtraHop Appliance is {this_platform} and the version is {firmware}')
+        print(f'ExtraHop Appliance at {ip} is {this_platform} and the version is {firmware}')
     return this_platform, firmware
 
 
@@ -199,12 +199,12 @@ if __name__ == '__main__':
     ''' We're looking to build a JSON object like this to POST to the EDA:
 
     {
-        "active_from": "-7d",
-        "active_until": 0,
+        "active_from": "-7d",          <- 'From' when. Easiest to use the d,w,m format
+        "active_until": 0,             <- 0 = Now
         "filter": {
             "field": "name",
             "operand": {
-                "value": "^VMware.*",  <--- Replace this with your regex of choice
+                "value": "^VMware",    <--- Replace this with your regex of choice
                 "is_regex": "true"
             },
             "operator": "!="           <--- You might want to change this to "=" or something else
@@ -218,7 +218,7 @@ if __name__ == '__main__':
     if options.regex:
         operand["value"] = options.regex
     else:
-        operand["value"] = "^VMware"
+        operand["value"] = "^ASUS"
 
     operand["is_regex"] = "true"
     filter_details = {}  # Create the 'filter' JSON object
