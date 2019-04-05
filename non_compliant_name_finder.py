@@ -204,13 +204,13 @@ if __name__ == '__main__':
         "filter": {
             "field": "name",
             "operand": {
-                "value": "^VMware",    <--- Replace this with your regex of choice
+                "value": "^VMware",    <- Replace this with your regex of choice
                 "is_regex": "true"
             },
-            "operator": "!="           <--- You might want to change this to "=" or something else
+            "operator": "!="           <- You might want to change this to "=" or something else
         },
-        "limit": 100,                  <--- And this might need updating if you have many non-compliant devices
-        "offset": 0
+        "limit": 100,                  <- And this might need updating if you have many non-compliant devices
+        "offset": 0                    <- Or you can paginate through results with a cursor-like workflow 
     }
 
     '''
