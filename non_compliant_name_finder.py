@@ -80,8 +80,41 @@ def get_version_and_platform(ip):
     else:
         this_platform = eh_platform
     if options.verbose:
-        print(f'ExtraHop Appliance at {ip} is {this_platform} and the version is {firmware}')
+        print(f'ExtraHop Appliance at {ip} is an {this_platform} and the firmware version is {firmware}')
     return this_platform, firmware
+
+
+def get_options():
+    parser = argparse.ArgumentParser(description='Usage: %prog [options]')
+    parser.add_argument('-H', '--host',
+                        required=True,
+                        default='extrahop',
+                        help='IP or hostname of ExtraHop appliance')
+    parser.add_argument('-a', '--apikey',
+                        required=False,
+                        help='API token obtained from the ExtraHop system')
+    parser.add_argument('-o', '--outputfile',
+                        required=False,
+                        default='non_compliant_server_names',
+                        help='Name of the file to save the results to')
+    parser.add_argument('-d', '--days',
+                        required=False,
+                        default='7',
+                        type=int,
+                        help='Number of days of lookback history to search')
+    parser.add_argument('-r', '--regex',
+                        required=False,
+                        default='^ASUS',
+                        help='The RegEx pattern to use in the device name search')
+    parser.add_argument('-i', '--ipaddr',
+                        required=False,
+                        help='Only include devices with an IP address(L3)')  ## TODO - Implement the L3 only search
+    group = parser.add_mutually_exclusive_group()  # Need to check the syntax for the API call
+    group.add_argument('-v', '--verbose', action='store_true')  # and move the filter toa 'rule' section
+    group.add_argument('-q', '--quiet', action='store_true')
+
+    options = parser.parse_args()
+    return options
 
 
 def call_extrahop(url, code, data):
@@ -119,41 +152,22 @@ def call_extrahop(url, code, data):
         elif response.status_code == 404:
             print(
                 f'The requested resource could not be found. Are you specifying the right object ID? ' \
-                    f'(device/appliance etc).')
+                    f'(device/appliance/alert/detection etc). {response.status_code}')
+
+        elif response.status_code == 403:
+            print(f'The current user has insufficient privileges to perform that operation. {response.status_code}')
+
+        elif response.status_code == 422:
+            print(f'Partial update or ticketing is disabled {response.status_code}')
+
+        elif response.status_code >= 500:
+            print(f'Internal Server Error. {response.status_code}')
+
     # Return the response as a JSON object.
     return response.json()
 
 
-# Set up options
-parser = argparse.ArgumentParser(description='Usage: %prog [options]')
-parser.add_argument('-H', '--host',
-                    required=True,
-                    default='extrahop',
-                    help='IP or hostname of ExtraHop appliance')
-parser.add_argument('-a', '--apikey',
-                    required=False,
-                    help='API token obtained from the ExtraHop system')
-parser.add_argument('-o', '--outputfile',
-                    required=False,
-                    default='non_compliant_server_names',
-                    help='Name of the file to save the results to')
-parser.add_argument('-d', '--days',
-                    required=False,
-                    default='7',
-                    type=int,
-                    help='Number of days of lookback history to search')
-parser.add_argument('-r', '--regex',
-                    required=False,
-                    default='^ASUS',
-                    help='The RegEx pattern to use in the device name search')
-parser.add_argument('-i', '--ipaddr',
-                    required=False,
-                    help='Only include devices with an IP address(L3)')  ## TODO - Implement the L3 only search
-group = parser.add_mutually_exclusive_group()  # Need to check the syntax for the API call
-group.add_argument('-v', '--verbose', action='store_true')  # and move the filter toa 'rule' section
-group.add_argument('-q', '--quiet', action='store_true')
-
-options = parser.parse_args()
+options = get_options()
 if not options.host:
     parser.error('Incorrect number of arguments. Specify an ExtraHop appliance IP or hostname as a minimum, '
                  'or specify "-h" for all options')
@@ -199,7 +213,7 @@ if __name__ == '__main__':
     ''' We're looking to build a JSON object like this to POST to the EDA:
 
     {
-        "active_from": "-7d",          <- 'From' when. Easiest to use the d,w,m format
+        "active_from": "-7d",          <- 'From' when. Easiest to use the d,w,m format see the REST API for full details)
         "active_until": 0,             <- 0 = Now
         "filter": {
             "field": "name",
