@@ -225,7 +225,9 @@ if __name__ == '__main__':
 
     device_name_check_data["limit"] = 100
     device_name_check_data["offset"] = 0
-    # print(json.dumps(device_name_check_data, indent=2))
+    if options.verbose:
+        print('Filter constructed for name check:')
+        print(json.dumps(device_name_check_data, indent=2))
 
     non_compliant_device_name_url = "devices/search"
     non_compliant_device_list = call_extrahop(
