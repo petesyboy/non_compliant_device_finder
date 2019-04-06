@@ -4,7 +4,6 @@ import json
 import os
 import time
 from pprint import pprint
-from typing import Dict, Union
 
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -85,7 +84,8 @@ def get_version_and_platform(ip):
 
 
 def get_options():
-    parser = argparse.ArgumentParser(description='Usage: %prog [options]')
+    parser = argparse.ArgumentParser(description=f'Usage: %(prog)s [options]',
+                                     epilog='Example: %(prog)s -H 192.168.0.16 -v -o devices -r ^ASUS -O 100 -l 100')
     parser.add_argument('-H', '--host',
                         required=True,
                         default='extrahop',
@@ -106,13 +106,22 @@ def get_options():
                         required=False,
                         default='^ASUS',
                         help='The RegEx pattern to use in the device name search')
-    parser.add_argument('-i', '--ipaddr',
+    #    parser.add_argument('-i', '--ipaddr',
+    #                        required=False,
+    #                        help='Only include devices with an IP address(L3)')  ## TODO - Implement the L3 only search
+    parser.add_argument('-l', '--limit',
                         required=False,
-                        help='Only include devices with an IP address(L3)')  ## TODO - Implement the L3 only search
+                        default=100,
+                        type=int,
+                        help='Limit the number of results (for pagination)')
+    parser.add_argument('-O', '--offset',
+                        required=False,
+                        type=int,
+                        default=0,
+                        help='Offset to search from (for pagination - use with the -l/--limit switch')
     group = parser.add_mutually_exclusive_group()  # Need to check the syntax for the API call
-    group.add_argument('-v', '--verbose', action='store_true')  # and move the filter toa 'rule' section
+    group.add_argument('-v', '--verbose', action='store_true')  # and move the filter to a 'rule' section
     group.add_argument('-q', '--quiet', action='store_true')
-
     options = parser.parse_args()
     return options
 
@@ -176,7 +185,7 @@ if not options.apikey:
     this_api_key = check_file_for_api_key(options.host)
     if this_api_key != 3:
         if options.verbose:
-            print('Found API key in key file')
+            print(f'Found API key in key file for appliance at {options.host}')
         options.apikey = this_api_key
     else:
         print(f'No key found in file and no API Key specified for device with IP address {str(options.host)}. ')
@@ -206,9 +215,10 @@ platform, version = get_version_and_platform(options.host)
 if __name__ == '__main__':
     daysinMS = int(options.days) * 86400000
     lookback_time = 0 - daysinMS
+    if options.verbose:
+        print(f'Setting lookback to {options.days} ({daysinMS}ms)')
 
-    device_name_check_data: Dict[str, Union[str, int,
-                                            Dict[str, Union[str, Dict[str, str]]]]] = {}
+    device_name_check_data = {}
 
     ''' We're looking to build a JSON object like this to POST to the EDA:
 
@@ -232,19 +242,19 @@ if __name__ == '__main__':
     if options.regex:
         operand["value"] = options.regex
     else:
-        operand["value"] = "^ASUS"
+        operand["value"] = "^VMware"
 
     operand["is_regex"] = "true"
     filter_details = {}  # Create the 'filter' JSON object
     filter_details["field"] = "name"
     filter_details["operand"] = operand
     filter_details['operator'] = "!="
-    device_name_check_data["active_from"] = "-{}d".format((options.days))
+    device_name_check_data["active_from"] = "-{}".format((daysinMS))
     device_name_check_data["active_until"] = 0
     device_name_check_data["filter"] = filter_details
 
-    device_name_check_data["limit"] = 100
-    device_name_check_data["offset"] = 0
+    device_name_check_data["limit"] = options.limit
+    device_name_check_data["offset"] = options.offset
     if options.verbose:
         print('Filter constructed for name check:')
         print(json.dumps(device_name_check_data, indent=2))
