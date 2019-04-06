@@ -184,7 +184,7 @@ def call_extrahop(url, code, data):
 options = get_options()
 if not options.host:
     parser.error('Incorrect number of arguments. Specify an ExtraHop appliance IP or hostname as a minimum, '
-                 'or specify "-h" for all options')
+                 'or specify "-h" for help on all options')
 
 if not options.apikey:
     this_api_key = check_file_for_api_key(options.host)
