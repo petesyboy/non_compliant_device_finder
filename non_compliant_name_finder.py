@@ -105,7 +105,7 @@ def get_options():
                         help='Number of days of lookback history to search (default: 7 days)')
     parser.add_argument('-r', '--regex',
                         required=False,
-                        default='^ASUS',
+                        default='^VMware',
                         help='The RegEx pattern to use in the device name search (default "^VMware"')
     #    parser.add_argument('-i', '--ipaddr',
     #                        required=False,
