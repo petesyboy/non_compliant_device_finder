@@ -2,6 +2,7 @@ __author__ = 'Pete Connolly (pconnolly@extrahop.com)'
 import argparse
 import json
 import os
+import sys
 import time
 from pprint import pprint
 
@@ -85,7 +86,7 @@ def get_version_and_platform(ip):
 
 def get_options():
     parser = argparse.ArgumentParser(description=f'Usage: %(prog)s [options]',
-                                     epilog='Example: %(prog)s -H 192.168.0.16 -v -o devices -r ^ASUS -O 100 -l 100')
+                                     epilog='Example: python3 %(prog)s -H 192.168.0.16 -v -o devices -r ^ASUS -O 100 -l 100')
     parser.add_argument('-H', '--host',
                         required=True,
                         default='extrahop',
@@ -96,16 +97,16 @@ def get_options():
     parser.add_argument('-o', '--outputfile',
                         required=False,
                         default='non_compliant_server_names',
-                        help='Name of the file to save the results to')
+                        help='Name of the file to save the results to (default: non_compliant_server_names)')
     parser.add_argument('-d', '--days',
                         required=False,
                         default='7',
                         type=int,
-                        help='Number of days of lookback history to search')
+                        help='Number of days of lookback history to search (default: 7 days)')
     parser.add_argument('-r', '--regex',
                         required=False,
                         default='^ASUS',
-                        help='The RegEx pattern to use in the device name search')
+                        help='The RegEx pattern to use in the device name search (default "^VMware"')
     #    parser.add_argument('-i', '--ipaddr',
     #                        required=False,
     #                        help='Only include devices with an IP address(L3)')  ## TODO - Implement the L3 only search
@@ -113,15 +114,18 @@ def get_options():
                         required=False,
                         default=100,
                         type=int,
-                        help='Limit the number of results (for pagination)')
+                        help='Limit the number of results (for pagination) (default: 100)')
     parser.add_argument('-O', '--offset',
                         required=False,
                         type=int,
                         default=0,
-                        help='Offset to search from (for pagination - use with the -l/--limit switch')
+                        help='Offset to search from (for pagination - use with the -l/--limit switch (default: 0)')
     group = parser.add_mutually_exclusive_group()  # Need to check the syntax for the API call
     group.add_argument('-v', '--verbose', action='store_true')  # and move the filter to a 'rule' section
     group.add_argument('-q', '--quiet', action='store_true')
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
     options = parser.parse_args()
     return options
 
