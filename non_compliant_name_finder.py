@@ -9,6 +9,7 @@ from pprint import pprint
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
+# Disable the warning for the default self-signed certificate (I know, I know)
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
