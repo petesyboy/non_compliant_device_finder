@@ -3,8 +3,9 @@
 A script to let you query an ExtraHop EDA/Reveal(x) EDA to find devices who's names don't match a particular regex.
 This can be as simple as a 'starts with' regex like '^VMware' or as complex as your naming standards require. The idea is
 that you can run the script via a cron job, either specifying the API token on the command line or you can have it saved 
-to a home in a user's home directory (.extrahop). This will then allow you to call the script with only a single 
-parameter (the IP address or name of the ExtraHop Explore Appliance).
+to a file in the user's home directory (.extrahop). This will then allow you to call the script with only a single 
+parameter (the IP address or name of the ExtraHop Explore Appliance) and have it output a CSV file with all the non-compliant 
+device names for further processing.
 
 For full usage information, run the script with the -h option. As at version 1.0, the output looks like this:
 
