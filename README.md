@@ -6,7 +6,7 @@ that you can run the script via a cron job, either specifying the API token on t
 to a home in a user's home directory (.extrahop). This will then allow you to call the script with only a single 
 parameter (the IP address or name of the ExtraHop Explore Appliance).
 
-For full usage information, run the script with the -h option. As at April 2018, the output looks like this:
+For full usage information, run the script with the -h option. As at version 1.0, the output looks like this:
 
 ```E:\deviceRenamer\Scripts\python.exe "E:/Python Projects/non_compliant_device_names/non_compliant_name_finder.py"
 usage: non_compliant_name_finder.py [-h] -H HOST [-a APIKEY] [-o OUTPUTFILE]
