@@ -23,7 +23,7 @@ optional arguments:
   -o OUTPUTFILE, --outputfile OUTPUTFILE Name of the file to save the results to (default:
                         non_compliant_server_names)
   -d DAYS, --days DAYS  Number of days of lookback history to search (default: 7 days)
-  -r REGEX, --regex REGEX The RegEx pattern to use in the device name search (default "^VMware"
+  -r REGEX, --regex REGEX The RegEx pattern to use in the device name search (default "^VMware")
   -l LIMIT, --limit LIMIT Limit the number of results (for pagination) (default: 100)
   -O OFFSET, --offset OFFSET Offset to search from (for pagination - use with the
                         -l/--limit switch (default: 0)
