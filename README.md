@@ -8,7 +8,7 @@ parameter (the IP address or name of the ExtraHop Explore Appliance).
 
 For full usage information, run the script with the -h option. As at April 2018, the output looks like this:
 
-E:\deviceRenamer\Scripts\python.exe "E:/Python Projects/non_compliant_device_names/non_compliant_name_finder.py"
+```E:\deviceRenamer\Scripts\python.exe "E:/Python Projects/non_compliant_device_names/non_compliant_name_finder.py"
 usage: non_compliant_name_finder.py [-h] -H HOST [-a APIKEY] [-o OUTPUTFILE]
                                     [-d DAYS] [-r REGEX] [-l LIMIT]
                                     [-O OFFSET] [-v | -q]
@@ -31,3 +31,4 @@ optional arguments:
   -q, --quiet
 
 Example: python3 non_compliant_name_finder.py -H 192.168.0.16 -v -o devices -r^ASUS -O100 -l100
+```
