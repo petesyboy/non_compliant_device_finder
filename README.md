@@ -37,4 +37,4 @@ To save the API token to the .extrahop file, just specify the ExtraHop EDA IP ad
 supply the token when prompted then select 'y' or 'yes' when asked if you want to save this. The next invocation of 
 the script will search for the IP or hostname in the file and run without interaction.
 
-Any suggestions, please email [mailto:peteconnolly1@gmail.com]peteconnolly1@gmail.com
+Any suggestions, please email peteconnolly1@gmail.com
