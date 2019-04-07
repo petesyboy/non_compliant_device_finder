@@ -33,3 +33,8 @@ optional arguments:
 
 Example: python3 non_compliant_name_finder.py -H 192.168.0.16 -v -o devices -r^ASUS -O100 -l100
 ```
+To save the API token to the .extrahop file, just specify the ExtraHop EDA IP address or name on the command line, 
+supply the token when prompted then select 'y' or 'yes' when asked if you want to save this. The next invocation of 
+the script will search for the IP or hostname in the file and run without interaction.
+
+Any suggestions, please email [mailto:peteconnolly1@gmail.com]peteconnolly1@gmail.com
