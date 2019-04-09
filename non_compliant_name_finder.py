@@ -155,7 +155,7 @@ def call_extrahop(url, code, data):
         # response.raise_for_status()
         if response.status_code == 401:
             print(
-                f'The API returned an unauthorised /missing API key error {response.status_code}. ' \
+                f'The API returned an unauthorised / missing API key error {response.status_code}. ' \
                     f'Please check your API key')
 
         elif response.status_code == 402:
