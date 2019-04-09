@@ -156,17 +156,17 @@ def call_extrahop(url, code, data):
         if response.status_code == 401:
             print(
                 f'The API returned an unauthorised / missing API key error {response.status_code}. ' \
-                    f'Please check your API key')
+                f'Please check your API key')
 
         elif response.status_code == 402:
             print(
                 f'The EULA has not been accepted for this appliance (status {response.status_code}. ' \
-                    f'Please browse to https://{options.host}/admin to accept the EULA')
+                f'Please browse to https://{options.host}/admin to accept the EULA')
 
         elif response.status_code == 404:
             print(
                 f'The requested resource could not be found. Are you specifying the right object ID? ' \
-                    f'(device/appliance/alert/detection etc). {response.status_code}')
+                f'(device/appliance/alert/detection etc). {response.status_code}')
 
         elif response.status_code == 403:
             print(f'The current user has insufficient privileges to perform that operation. {response.status_code}')
