@@ -97,8 +97,8 @@ def get_options():
                         help='API token obtained from the ExtraHop system')
     parser.add_argument('-o', '--outputfile',
                         required=False,
-                        default='non_compliant_server_names',
-                        help='Name of the file to save the results to (default: non_compliant_server_names)')
+                        default='non_compliant_device_names',
+                        help='Name of the file to save the results to (default: non_compliant_device_names)')
     parser.add_argument('-d', '--days',
                         required=False,
                         default='7',
