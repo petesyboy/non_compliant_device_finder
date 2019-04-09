@@ -1,4 +1,5 @@
 __author__ = 'Pete Connolly (pconnolly@extrahop.com)'
+# non_compliant_name_finder.py version 1.0
 import argparse
 import json
 import os
@@ -154,9 +155,10 @@ def call_extrahop(url, code, data):
     if response.status_code != 200:
         # response.raise_for_status()
         if response.status_code == 401:
+            path = get_api_key_path()
             print(
                 f'The API returned an unauthorised / missing API key error {response.status_code}. ' \
-                f'Please check your API key')
+                    f'Please check your API key in the file {path}')
 
         elif response.status_code == 402:
             print(
