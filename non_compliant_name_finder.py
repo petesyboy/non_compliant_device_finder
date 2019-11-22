@@ -1,4 +1,4 @@
-__author__ = 'Pete Connolly (pconnolly@extrahop.com)'
+__author__ = 'Pete Connolly (peteconnolly1@gmail.com)'
 # non_compliant_name_finder.py version 1.0
 
 import json
