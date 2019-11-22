@@ -1,4 +1,4 @@
-__author__ = 'Pete Connolly (pconnolly@extrahop.com)'
+__author__ = 'Pete Connolly (peteconnolly1@gmail.com)'
 # ehoplib.py version 0.1
 
 import argparse
