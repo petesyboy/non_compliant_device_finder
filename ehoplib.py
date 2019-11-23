@@ -148,8 +148,15 @@ def call_extrahop(host, url, code, apikey, verbose, data):
         print(f'Sending a {code} request to {fullurl} with the headers {headers}')
 
     if code == 'get':
-        response = requests.get(fullurl, headers=headers,
-                                timeout=10, verify=False)
+        try:
+            response = requests.get(fullurl, headers=headers,
+                                    timeout=10, verify=False)
+        except requests.exceptions.Timeout:
+            print(f'Could not contact the device at {host}. Time out error')
+            sys.exit(1)
+        except requests.RequestException:
+            print(f'Unrecoverable error using URL {fullurl} to appliance at {str(host)}. ')
+            sys.exit(1)
     elif code == 'post':
         if verbose:
             pprint(data)
