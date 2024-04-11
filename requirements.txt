@@ -1,7 +1,7 @@
 autopep8>=1.4.3
 certifi>=2018.11.29
 chardet==3.0.4
-idna==2.8
+idna==3.7
 pycodestyle==2.5.0
 requests>=2.21.0
 urllib3>=1.24.3
